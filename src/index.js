@@ -1,14 +1,7 @@
 import './sass/main.scss';
-import axios from 'axios';
+
 import card from './template/card.hbs';
-const querystring = require('querystring');
-
-const AUTH_KEY = '563492ad6f91700001000001926c4fbb77504078a21e31a37ce51bbd';
-const pages = 12;
-let page = 1;
-let searchQuery = '';
-
-axios.defaults.headers.common['Authorization'] = AUTH_KEY;
+import apiService from './js/api-service';
 
 const galleryList = document.querySelector('.list');
 const searchForm = document.querySelector('.search-form');
@@ -19,61 +12,22 @@ loadMoreBtn.addEventListener('click', onLoadMore);
 
 function onLoadMore(event) {
   event.preventDefault();
-  page++;
-  getFotos(searchQuery);
+  apiService.incrementPage();
+  showFotos();
 }
 
 function onSubmit(event) {
   event.preventDefault();
-  searchQuery = event.currentTarget.elements.text.value;
-  getFotos(searchQuery);
+  apiService.config.params.query = event.currentTarget.elements.text.value;
+  showFotos();
   searchForm.reset();
 }
 
-async function getFotos(searchQuery) {
+async function showFotos() {
   try {
-    const response = await axios.get(
-      `https://api.pexels.com/v1/search?query=${searchQuery}&page=${page}&per_page=${pages}`,
-    );
-    const photos = response.data.photos;
-    console.log(photos);
+    const photos = await apiService.getFotos();
     galleryList.insertAdjacentHTML('beforeend', card(photos));
   } catch (error) {
     console.error(error);
   }
 }
-
-// getFotos(query);
-
-// function getFotos() {
-//   return fetch('https://api.pexels.com/v1/search?query=nature&per_page=10', {
-//     method: 'GET',
-//     headers: {
-//       Authorization: '563492ad6f91700001000001926c4fbb77504078a21e31a37ce51bbd',
-//     },
-//   })
-//     .then(response => response.json())
-//     .then(data => {
-//       console.log(data.photos);
-//       return data.photos;
-//     });
-// }
-
-// getFotos();
-
-// async function getFotos() {
-//   const response = await fetch('https://api.pexels.com/v1/search?query=nature&per_page=10', {
-//     method: 'GET',
-//     headers: {
-//       Authorization: '563492ad6f91700001000001926c4fbb77504078a21e31a37ce51bbd',
-//     },
-//   });
-
-//   const data = await response.json();
-
-//   return data;
-// }
-
-// getFotos().then(data => {
-//   console.log(data);
-// });
