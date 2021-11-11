@@ -24,4 +24,8 @@ export default {
   incrementPage() {
     this.config.params.page += 1;
   },
+
+  resetPage() {
+    this.config.params.page = 1;
+  },
 };

@@ -18,8 +18,10 @@ function onLoadMore(event) {
 }
 
 function onSubmit(event) {
-  galleryList.innerHTML = '';
   event.preventDefault();
+
+  galleryList.innerHTML = '';
+  apiService.resetPage();
   apiService.config.params.query = event.currentTarget.elements.text.value;
   showFotos();
   searchForm.reset();
