@@ -22,6 +22,6 @@ export default {
   },
 
   incrementPage() {
-    this.page += 1;
+    this.config.params.page += 1;
   },
 };

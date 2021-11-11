@@ -2,6 +2,7 @@ import './sass/main.scss';
 
 import card from './template/card.hbs';
 import apiService from './js/api-service';
+import throttle from 'lodash.throttle';
 
 const galleryList = document.querySelector('.list');
 const searchForm = document.querySelector('.search-form');
@@ -17,10 +18,12 @@ function onLoadMore(event) {
 }
 
 function onSubmit(event) {
+  galleryList.innerHTML = '';
   event.preventDefault();
   apiService.config.params.query = event.currentTarget.elements.text.value;
   showFotos();
   searchForm.reset();
+  checkScroll();
 }
 
 async function showFotos() {
@@ -29,5 +32,37 @@ async function showFotos() {
     galleryList.insertAdjacentHTML('beforeend', card(photos));
   } catch (error) {
     console.error(error);
+  }
+}
+
+function checkScroll() {
+  window.addEventListener('scroll', throttle(checkPosition, 500));
+  window.addEventListener('resize', throttle(checkPosition, 500));
+}
+
+function checkPosition() {
+  // Нам потребуется знать высоту документа и высоту экрана.
+  const height = document.body.offsetHeight;
+  const screenHeight = window.innerHeight;
+
+  // Они могут отличаться: если на странице много контента,
+  // высота документа будет больше высоты экрана (отсюда и скролл).
+
+  // Записываем, сколько пикселей пользователь уже проскроллил.
+  const scrolled = window.scrollY;
+
+  // Обозначим порог, по приближении к которому
+  // будем вызывать какое-то действие.
+  // В нашем случае — четверть экрана до конца страницы.
+  const threshold = height - screenHeight / 4;
+
+  // Отслеживаем, где находится низ экрана относительно страницы.
+  const position = scrolled + screenHeight;
+
+  if (position >= threshold) {
+    // Если мы пересекли полосу-порог, вызываем нужное действие.
+    console.log('Need more photos');
+    apiService.incrementPage();
+    showFotos();
   }
 }
