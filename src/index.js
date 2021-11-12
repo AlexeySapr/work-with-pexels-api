@@ -3,19 +3,25 @@ import './sass/main.scss';
 import card from './template/card.hbs';
 import apiService from './js/api-service';
 import throttle from 'lodash.throttle';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+import 'lazysizes';
+
+let simpleGallery = new SimpleLightbox('.list-item a');
 
 const galleryList = document.querySelector('.list');
 const searchForm = document.querySelector('.search-form');
-const loadMoreBtn = document.querySelector('.load-more');
+// const loadMoreBtn = document.querySelector('.load-more');
 
 searchForm.addEventListener('submit', onSubmit);
-loadMoreBtn.addEventListener('click', onLoadMore);
+// loadMoreBtn.addEventListener('click', onLoadMore);
 
-function onLoadMore(event) {
-  event.preventDefault();
-  apiService.incrementPage();
-  showFotos();
-}
+// function onLoadMore(event) {
+//   event.preventDefault();
+//   apiService.incrementPage();
+//   showFotos();
+//   simpleGallery.refresh();
+// }
 
 function onSubmit(event) {
   event.preventDefault();
@@ -24,6 +30,7 @@ function onSubmit(event) {
   apiService.resetPage();
   apiService.config.params.query = event.currentTarget.elements.text.value;
   showFotos();
+
   searchForm.reset();
   checkScroll();
 }
@@ -32,6 +39,7 @@ async function showFotos() {
   try {
     const photos = await apiService.getFotos();
     galleryList.insertAdjacentHTML('beforeend', card(photos));
+    simpleGallery.refresh();
   } catch (error) {
     console.error(error);
   }
@@ -63,7 +71,6 @@ function checkPosition() {
 
   if (position >= threshold) {
     // Если мы пересекли полосу-порог, вызываем нужное действие.
-    console.log('Need more photos');
     apiService.incrementPage();
     showFotos();
   }
